@@ -55,4 +55,30 @@ export class ChatRoomController{
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+
+  static async getChatRoomById(req: Request, res: Response): Promise<Response> {
+    try {
+      const { id } = req.params;
+      const userId = req.user?.userId;
+
+      if (!id) return res.status(400).json({ error: 'Chatroom ID is required' });
+      if (!userId) return res.status(401).json({ error: 'Unauthorized: No user ID' });
+
+      const chatRoom = await prisma.chatRoom.findFirst({
+        where: { id, userId },
+        include: {
+          messages: {
+            orderBy: { createdAt: 'asc' }
+          }
+      }
+      });
+
+      if (!chatRoom) return res.status(404).json({ error: 'Chatroom not found' });
+
+      return res.status(200).json(chatRoom);
+    } catch (error) {
+      console.error('Error fetching chat room:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
 }
