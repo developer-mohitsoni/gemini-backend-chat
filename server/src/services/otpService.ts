@@ -1,9 +1,4 @@
-import {Redis} from "ioredis"
-
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-});
+import { redis } from "./redisService.js";
 
 export async function generateOTP(mobile: string): Promise<string> {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
