@@ -26,15 +26,17 @@ export class AuthController{
         return res.status(400).json({ error: "User already exists" });
       }
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(payload.password, salt);
+      if(payload.password){
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(payload.password, salt);
 
-      payload.password = hashedPassword;
+        payload.password = hashedPassword;
+      }
 
       const user = await prisma.user.create({
         data: {
           mobile: payload.mobile,
-          password: payload.password
+          password: payload.password || undefined, // Optional field
         }
       });
 
@@ -52,7 +54,7 @@ export class AuthController{
         }
       });
     } catch (error) {
-     if (error instanceof ZodError) {
+      if (error instanceof ZodError) {
 				const reporter = new ZodCustomErrorReporter(error);
 
 				return res.status(422).json({

@@ -9,9 +9,18 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(cuid())
-  mobile   String @unique
-  password String
+  id       String  @id @default(cuid())
+  mobile   String  @unique
+  password String?
 
+  createdAt DateTime   @default(now())
+  ChatRoom  ChatRoom[]
+}
+
+model ChatRoom {
+  id        String   @id @default(uuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
 }
