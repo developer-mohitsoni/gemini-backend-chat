@@ -4,8 +4,8 @@ import {type Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { ZodError } from "zod";
 import { ZodCustomErrorReporter } from "../validations/CustomErrorReporter.js";
-import jwt from "jsonwebtoken";
-import { generateOTP } from "../services/otpService.js";
+import { generateOTP, verifyOTP } from "../services/otpService.js";
+import { signToken } from "../services/jwtService.js";
 export class AuthController{
   static async register(req: Request, res: Response){
     try{
@@ -41,18 +41,9 @@ export class AuthController{
         }
       });
 
-      const verificationToken = jwt.sign(
-					{ userId: user.id, mobile: user.mobile },
-					process.env.JWT_SECRET as string,
-					{ expiresIn: "5m" }
-				);
-
       return res.json({
         status: 200,
         message: "User registered successfully.",
-        data:{
-          token: `Bearer ${verificationToken}`,
-        }
       });
     } catch (error) {
       if (error instanceof ZodError) {
@@ -88,6 +79,41 @@ export class AuthController{
         message: "OTP sent successfully",
         data: {
           otp: otp
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: "Something went wrong... Please try again"
+      });
+    }
+  }
+
+  static async verifyOtp(req: Request, res: Response) {
+    try {
+      const { mobile, otp } = req.body;
+
+      if (!mobile || !otp) {
+        return res.status(400).json({ error: "Mobile number and OTP are required" });
+      }
+
+      const valid = await verifyOTP(mobile, otp);
+      if (!valid) return res.status(401).json({ error: 'Invalid OTP' });
+
+      const user = await prisma.user.findUnique({ where: { 
+        mobile: mobile
+      }});
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      const token = signToken(user.id, user.mobile);
+      res.json({ token });
+
+
+      return res.json({
+        status: 200,
+        message: "OTP verified successfully",
+        data: {
+          mobile: mobile
         }
       });
     } catch (error) {

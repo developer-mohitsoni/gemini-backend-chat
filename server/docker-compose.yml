@@ -8,3 +8,9 @@ services:
       - POSTGRES_DB=gemini-backend
     ports:
       - "5431:5432"
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
