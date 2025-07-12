@@ -4,7 +4,7 @@ import {type Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { ZodError } from "zod";
 import { ZodCustomErrorReporter } from "../validations/CustomErrorReporter.js";
-
+import jwt from "jsonwebtoken";
 export class AuthController{
   static async register(req: Request, res: Response){
     try{
@@ -38,9 +38,18 @@ export class AuthController{
         }
       });
 
+      const verificationToken = jwt.sign(
+					{ userId: user.id, mobile: user.mobile },
+					process.env.JWT_SECRET as string,
+					{ expiresIn: "5m" }
+				);
+
       return res.json({
         status: 200,
         message: "User registered successfully.",
+        data:{
+          token: `Bearer ${verificationToken}`,
+        }
       });
     } catch (error) {
      if (error instanceof ZodError) {
