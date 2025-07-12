@@ -123,4 +123,28 @@ export class AuthController{
       });
     }
   }
+
+  static async forgotPassword(req: Request, res: Response) {
+    const {mobile} = req.body;
+    if (!mobile) {
+      return res.status(400).json({ error: "Mobile number is required" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { mobile }
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const otp = await generateOTP(mobile);
+
+    return res.json({
+      status: 200,
+      message: "OTP sent successfully for password reset",
+      data: {
+        otp: otp
+      }
+    });
+  }
 }

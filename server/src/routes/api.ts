@@ -13,6 +13,8 @@ router.post("/auth/send-otp",AuthController.sendOtp);
 
 router.post("/auth/verify-otp", AuthController.verifyOtp);
 
+router.post("/auth/forgot-password", AuthController.forgotPassword);
+
 router.get('/health', (req, res) => {
   res.json({ health: 'OK' });
 });
