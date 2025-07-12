@@ -27,6 +27,8 @@ router.get("/user/me", authMiddleware, UserController.getProfile);
 // Controller routes
 router.post("/chatroom", authMiddleware, ChatRoomController.createChatRoom);
 
+router.get("/chatroom", authMiddleware, ChatRoomController.getUserChatRooms);
+
 router.get('/health', (req, res) => {
   res.json({ health: 'OK' });
 });

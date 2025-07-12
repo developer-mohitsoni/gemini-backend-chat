@@ -28,4 +28,31 @@ export class ChatRoomController{
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+
+  static async getUserChatRooms(req: Request, res: Response): Promise<Response> {
+    try {
+      const userId = req.user?.userId;
+
+      if (!userId) return res.status(401).json({ error: 'Unauthorized: No user ID' });
+
+      // Check cache first
+      const cachedChatRooms = await redis.get(`chatrooms:${userId}`);
+      if (cachedChatRooms) {
+        return res.status(200).json(JSON.parse(cachedChatRooms));
+      }
+
+      const chatRooms = await prisma.chatRoom.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      // Cache the result
+      await redis.set(`chatrooms:${userId}`, JSON.stringify(chatRooms), 'EX', 600); // Cache for 10 min.
+
+      return res.status(200).json(chatRooms);
+    } catch (error) {
+      console.error('Error fetching chat rooms:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
 }
