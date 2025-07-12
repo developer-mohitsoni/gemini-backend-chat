@@ -4,7 +4,7 @@
     "module": "nodenext",                   
     "moduleResolution": "nodenext",
     "lib": ["ES2024", "DOM"],
-    "outDir": "./dist",
+    "outDir": "dist",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
@@ -16,10 +16,6 @@
     "allowSyntheticDefaultImports": true,
     "noEmit": false,
     "types": ["node"],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
     "incremental": true, 
     "composite": true
   },
