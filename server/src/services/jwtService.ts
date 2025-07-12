@@ -7,5 +7,5 @@ export function signToken(userId: string, mobile: string): string {
 }
 
 export function verifyToken(token: string): { userId: string } {
-  return jwt.verify(token, JWT_SECRET) as { userId: string };
+  return jwt.verify(token, JWT_SECRET as string) as { userId: string };
 }

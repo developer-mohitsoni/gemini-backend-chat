@@ -147,4 +147,28 @@ export class AuthController{
       }
     });
   }
+  static async changePassword(req: Request, res: Response) {
+    const { newPassword } = req.body;
+
+    const userId = req.user?.userId;
+
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    if (!newPassword) return res.status(400).json({ error: 'Password is required' });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await prisma.user.update({
+      where: { 
+        id: userId
+      },
+      data: { password: hashedPassword }
+    });
+
+    return res.json({
+      status: 200,
+      message: "Password changed successfully"
+    });
+  }
 }
