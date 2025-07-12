@@ -2,6 +2,7 @@ import { AuthController } from '../controller/AuthController.js';
 import {Router, type Request, Response} from 'express';
 import { authMiddleware } from '../middleware/AuthMiddleware.js';
 import { UserController } from '../controller/UserController.js';
+import { ChatRoomController } from '../controller/ChatRoomController.js';
 
 const router = Router();
 
@@ -22,6 +23,9 @@ router.post("/auth/change-password", authMiddleware,  AuthController.changePassw
 
 // User routes
 router.get("/user/me", authMiddleware, UserController.getProfile);
+
+// Controller routes
+router.post("/chatroom", authMiddleware, ChatRoomController.createChatRoom);
 
 router.get('/health', (req, res) => {
   res.json({ health: 'OK' });
