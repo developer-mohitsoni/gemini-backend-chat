@@ -9,6 +9,8 @@ router.get('/status', (req:Request, res:Response) => {
 
 router.post("/auth/signup", AuthController.register);
 
+router.post("/auth/send-otp",AuthController.sendOtp);
+
 router.get('/health', (req, res) => {
   res.json({ health: 'OK' });
 });

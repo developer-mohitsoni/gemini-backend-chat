@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import { ZodError } from "zod";
 import { ZodCustomErrorReporter } from "../validations/CustomErrorReporter.js";
 import jwt from "jsonwebtoken";
+import { generateOTP } from "../services/otpService.js";
 export class AuthController{
   static async register(req: Request, res: Response){
     try{
@@ -66,6 +67,34 @@ export class AuthController{
 				status: 500,
 				message: "Something went wrong... Please try again"
 			});
+    }
+  }
+
+  static async sendOtp(req: Request, res: Response) {
+    try {
+      const { mobile } = req.body;
+
+      if (!mobile) {
+        return res.status(400).json({ error: "Mobile number is required" });
+      }
+
+      const otp = await generateOTP(mobile);
+
+      // Here you would typically send an OTP to the user's mobile number.
+      // For demonstration, we'll just return a success message.
+
+      return res.json({
+        status: 200,
+        message: "OTP sent successfully",
+        data: {
+          otp: otp
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: "Something went wrong... Please try again"
+      });
     }
   }
 }
