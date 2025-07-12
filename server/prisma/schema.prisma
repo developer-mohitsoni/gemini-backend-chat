@@ -14,7 +14,8 @@ model User {
   password String?
 
   createdAt DateTime   @default(now())
-  ChatRoom  ChatRoom[]
+  chatRoom  ChatRoom[]
+  message   Message[]
 }
 
 model ChatRoom {
@@ -22,5 +23,18 @@ model ChatRoom {
   name      String
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+  messages  Message[]
   createdAt DateTime @default(now())
 }
+
+model Message {
+  id         String   @id @default(uuid())
+  content    String
+  response   String?
+  userId     String
+  chatroomId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  chatroom   ChatRoom @relation(fields: [chatroomId], references: [id])
+}
+
