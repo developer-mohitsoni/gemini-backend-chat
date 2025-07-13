@@ -13,18 +13,24 @@ model User {
   mobile   String  @unique
   password String?
 
+  isPro                Boolean   @default(false)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String?
+  currentPeriodEnd     DateTime?
+
   createdAt DateTime   @default(now())
   chatRoom  ChatRoom[]
   message   Message[]
 }
 
 model ChatRoom {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   messages  Message[]
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 }
 
 model Message {
@@ -37,4 +43,3 @@ model Message {
   user       User     @relation(fields: [userId], references: [id])
   chatroom   ChatRoom @relation(fields: [chatroomId], references: [id])
 }
-
