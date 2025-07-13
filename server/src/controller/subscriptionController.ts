@@ -30,7 +30,6 @@ export class SubscriptionController {
 
   static async handleStripeWebhook(req:Request, res:Response): Promise<Response>{
     const signature = req.headers['stripe-signature'] as string;
-    console.log('Received Stripe webhook with signature:', signature);
 
     let event;
 

@@ -49,8 +49,6 @@ export async function createStripeCheckout(userId: string): Promise<string> {
 }
 
 export async function handleStripeWebhook(event: Stripe.Event) {
-  console.log('✅ Webhook hit:', event.type);
-
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;

@@ -29,7 +29,7 @@ export const handler = new Worker(messageQueueName, async (job)=>{
 })
 
 handler.on("completed", (job) => {
-	console.log(`The job ${job.id} is completed.`);
+  console.log(`The job ${job?.id} is completed.`);
 });
 handler.on("failed", (job) => {
 	console.log(`The job ${job?.id} is failed.`);

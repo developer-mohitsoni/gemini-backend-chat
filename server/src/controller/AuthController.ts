@@ -11,11 +11,7 @@ export class AuthController{
     try{
       const body = req.body;
 
-      console.log("Register request body:", body);
-
       const payload = await registerSchema.parseAsync(body);
-
-      console.log("Register payload:", payload);
 
       const existingUser = await prisma.user.findUnique({
         where: {
