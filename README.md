@@ -19,7 +19,6 @@ This project is a backend application for a chat application, featuring user aut
   - [How to Test via Postman](#how-to-test-via-postman)
   - [Access/Deployment Instructions](#accessdeployment-instructions)
     - [Local Development](#local-development)
-    - [Docker Deployment (Optional)](#docker-deployment-optional)
     - [Production Deployment](#production-deployment)
 
 ## How to Set Up and Run the Project
@@ -30,8 +29,8 @@ Before you begin, ensure you have the following installed:
 
 - Node.js (v18 or higher)
 - npm (Node Package Manager)
-- PostgreSQL database
-- Docker and Docker Compose (optional, for containerized setup)
+- PostgreSQL database (e.g., NeonDB)
+- Redis instance (e.g., Upstash)
 
 ### Environment Variables
 
@@ -40,8 +39,7 @@ Create a `.env` file in the `server/` directory with the following variables:
 ```
 DATABASE_URL="postgresql://user:password@host:port/database?schema=public"
 JWT_SECRET=your_jwt_secret_key
-REDIS_HOST=localhost
-REDIS_PORT=6379
+REDIS_URL=your_redis_url
 GOOGLE_GEMINI_API_KEY=your_gemini_api_key
 STRIPE_SECRET_KEY=your_stripe_secret_key
 STRIPE_PRO_PRICE_ID=your_stripe_pro_price_id
@@ -49,10 +47,9 @@ FRONTEND_URL=http://localhost:3000
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 ```
 
-- `DATABASE_URL`: Connection string for your PostgreSQL database.
+- `DATABASE_URL`: Connection string for your PostgreSQL database (e.g., from NeonDB).
 - `JWT_SECRET`: A secret key for JWT token generation.
-- `REDIS_HOST`: Redis host for BullMQ.
-- `REDIS_PORT`: Redis port for BullMQ.
+- `REDIS_URL`: Redis URL (TCP) for BullMQ and rate-limitting(e.g., from Upstash).
 - `GOOGLE_GENAI_API_KEY`: Your API key for Google Gemini API.
 - `STRIPE_SECRET_KEY`: Your Stripe secret key.
 - `STRIPE_PRO_PRICE_ID`: Your Stripe pro price id.
@@ -62,11 +59,7 @@ STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
 ### Installation
 
-1.  **Navigate to the server directory:**
-    ```bash
-    cd server
-    ```
-2.  **Install dependencies:**
+1.  **Install dependencies:**
     ```bash
     npm install
     ```
@@ -77,7 +70,6 @@ This project uses Prisma as an ORM.
 
 1.  **Generate Prisma Client:**
     ```bash
-    cd server
     npx prisma generate
     ```
 2.  **Run Migrations:**
@@ -94,14 +86,12 @@ You can run the application in development mode or build and start it.
 **Development Mode (with hot-reloading):**
 
 ```bash
-cd server
 npm run dev
 ```
 
 **Build and Start:**
 
 ```bash
-cd server
 npm run build
 npm start
 ```
@@ -192,26 +182,13 @@ You can use Postman to test the API endpoints.
 
 Follow the "How to Set Up and Run the Project" section to run the application locally.
 
-### Docker Deployment (Optional)
-
-A `docker-compose.yml` file is provided for containerized deployment.
-
-1.  **Ensure Docker and Docker Compose are installed.**
-2.  **Build and run the containers:**
-    ```bash
-    cd server
-    docker-compose up -d
-    ```
-    This will build the Docker image for the server and start the server and a PostgreSQL database (if configured in `docker-compose.yml`).
-
 ### Production Deployment
 
-For production deployment, consider the following:
+For production deployment, this application can be deployed on platforms like Render. Consider the following:
 
--   **Environment Variables**: Securely manage environment variables (e.g., using Kubernetes secrets, AWS Secrets Manager, etc.).
--   **Database**: Use a managed database service (e.g., AWS RDS, Google Cloud SQL).
--   **Redis**: Use a managed Redis service (e.g., AWS ElastiCache, Google Cloud Memorystore).
--   **Scalability**: Deploy behind a load balancer and scale horizontally based on demand.
--   **Monitoring & Logging**: Implement robust monitoring and logging solutions.
--   **CI/CD**: Set up a Continuous Integration/Continuous Deployment pipeline for automated deployments.
+-   **Environment Variables**: Securely manage environment variables (e.g., using Render's environment groups or secrets).
+-   **Database**: Use a managed PostgreSQL database service like NeonDB, which can be easily integrated with Render.
+-   **Redis**: Use a managed Redis service like Upstash, which can also be integrated with Render.
+-   **Scalability**: Render provides options for scaling your application horizontally.
+-   **Monitoring & Logging**: Utilize Render's built-in logging and monitoring tools.
 -   **Security**: Ensure all dependencies are up-to-date, implement proper input sanitization, and secure API keys.
