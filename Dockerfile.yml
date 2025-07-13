@@ -1,37 +1,56 @@
-FROM node:20-alpine AS base
+FROM node:22-alpine AS builder
 
-FROM base AS builder
+RUN apk update
 
-WORKDIR /home/build
+RUN apk add --no-cache libc6-compat
 
-COPY package*.json .
-COPY ./prisma/schema.prisma ./prisma/
-COPY tsconfig.json .
+WORKDIR /app
+
+COPY . .
 
 RUN npm install
-
-RUN npx prisma generate
-COPY . .
 
 RUN npm run build
 
 # Stage 2: Runner
 
-FROM base AS runner
+FROM node:22-alpine AS installer
 
-WORKDIR /home/app
+RUN apk update
 
-ENV NODE_ENV=production
+RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache openssl
 
-COPY --from=builder /home/build/dist ./dist
-COPY --from=builder /home/build/node_modules ./node_modules
-COPY --from=builder /home/build/prisma ./prisma
+WORKDIR /app
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/package.json .
+COPY --from=builder /app/package-lock.json .
 
-USER nodejs
+RUN npm ci --omit=dev
+
+FROM node:22-alpine AS runner
+
+RUN apk update
+
+RUN apk add --no-cache libc6-compat
+
+RUN apk add --no-cache openssl
+
+WORKDIR /app
+
+RUN addgroup --system --gid 1001 expressjs
+RUN adduser --system --uid 1001 expressjs
+
+USER root
+
+COPY --from=installer /app .
+
+RUN chown -R expressjs:expressjs /app
+
+USER expressjs
 
 EXPOSE 3000
 
-CMD ["npx", "prisma", "migrate", "deploy", "&&", "node", "dist/index.js"]
+CMD ["npm", "run", "docker-start"]
