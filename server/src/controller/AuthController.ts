@@ -37,7 +37,7 @@ export class AuthController{
       const user = await prisma.user.create({
         data: {
           mobile: payload.mobile,
-          password: payload.password || undefined, // Optional field
+          password: payload.password || undefined,
         }
       });
 
@@ -70,9 +70,6 @@ export class AuthController{
       }
 
       const otp = await generateOTP(mobile);
-
-      // Here you would typically send an OTP to the user's mobile number.
-      // For demonstration, we'll just return a success message.
 
       return res.json({
         status: 200,

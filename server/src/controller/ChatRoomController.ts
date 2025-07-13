@@ -19,7 +19,6 @@ export class ChatRoomController{
         }
       });
 
-      // Invalidate cache for GET /chatroom
       await redis.del(`chatrooms:${userId}`);
 
       return res.status(201).json({ message: 'Chatroom created', chatRoom });
@@ -35,7 +34,6 @@ export class ChatRoomController{
 
       if (!userId) return res.status(401).json({ error: 'Unauthorized: No user ID' });
 
-      // Check cache first
       const cachedChatRooms = await redis.get(`chatrooms:${userId}`);
       if (cachedChatRooms) {
         return res.status(200).json(JSON.parse(cachedChatRooms));
@@ -46,8 +44,7 @@ export class ChatRoomController{
         orderBy: { createdAt: 'desc' },
       });
 
-      // Cache the result
-      await redis.set(`chatrooms:${userId}`, JSON.stringify(chatRooms), 'EX', 600); // Cache for 10 min.
+      await redis.set(`chatrooms:${userId}`, JSON.stringify(chatRooms), 'EX', 600);
 
       return res.status(200).json(chatRooms);
     } catch (error) {

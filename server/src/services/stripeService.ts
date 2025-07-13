@@ -26,7 +26,6 @@ export async function createStripeCheckout(userId: string): Promise<string> {
 
     customerId = customer.id;
 
-    // Save customer ID to user
     await prisma.user.update({
       where: { id: userId },
       data: { stripeCustomerId: customerId },
