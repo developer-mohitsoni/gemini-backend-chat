@@ -1,6 +1,6 @@
 import {type Request, Response, NextFunction } from "express";
 import prisma from "../DB/db.config.js";
-import { redis } from "../services/redisService.js";
+import { redis } from "../config/redis.js";
 
 export async function rateLimitMiddleware(req:Request, res:Response, next:NextFunction){
   const userId = req?.user?.userId;

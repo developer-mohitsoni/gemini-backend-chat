@@ -1,5 +1,5 @@
 import { Queue, Worker } from "bullmq";
-import { redis } from "../services/redisService.js";
+import { redis } from "../config/redis.js";
 import { defaultQueueConfig } from "../config/queue.js";
 import { getGeminiReply } from "../services/geminiService.js";
 import prisma from "../DB/db.config.js";

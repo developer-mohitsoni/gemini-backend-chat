@@ -1,6 +1,6 @@
 import { type Request, Response } from "express";
 import prisma from "../DB/db.config.js";
-import { redis } from "../services/redisService.js";
+import { redis } from "../config/redis.js";
 
 export class ChatRoomController{
   static async createChatRoom(req: Request, res: Response): Promise<Response> {

@@ -1,4 +1,4 @@
-import { redis } from "./redisService.js";
+import { redis } from "../config/redis.js";
 
 export async function generateOTP(mobile: string): Promise<string> {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
