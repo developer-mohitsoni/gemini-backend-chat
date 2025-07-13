@@ -56,7 +56,12 @@ export async function handleStripeWebhook(event: Stripe.Event) {
       const session = event.data.object as Stripe.Checkout.Session;
       
       const customerId = session.customer as string;
-      const subscriptionId = session.subscription as string;
+      const subscriptionId = session.subscription;
+
+      if (!subscriptionId) {
+        console.warn(`Checkout session ${session.id} completed without a subscription ID. Skipping subscription update.`);
+        return;
+      }
 
       const user = await prisma.user.findFirst({
         where: { stripeCustomerId: customerId },
@@ -67,7 +72,7 @@ export async function handleStripeWebhook(event: Stripe.Event) {
         return;
       }
 
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId as string, {
         expand: ["items.data"]
       });
 
@@ -75,7 +80,7 @@ export async function handleStripeWebhook(event: Stripe.Event) {
         where: { id: user.id },
         data: {
           isPro: true,
-          stripeSubscriptionId: subscriptionId,
+          stripeSubscriptionId: subscriptionId as string,
           subscriptionStatus: subscription.status,
           currentPeriodEnd: new Date(subscription.items.data[0].current_period_end * 1000)
         },
@@ -83,6 +88,7 @@ export async function handleStripeWebhook(event: Stripe.Event) {
     }
     break;
     case 'invoice.payment_failed': {
+      console.log('🔔 Received invoice.payment_failed');
       const invoice = event.data.object as Stripe.Invoice;
       const customerId = invoice.customer as string;
 
