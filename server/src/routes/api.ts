@@ -3,6 +3,7 @@ import {Router, type Request, Response} from 'express';
 import { authMiddleware } from '../middleware/AuthMiddleware.js';
 import { UserController } from '../controller/UserController.js';
 import { ChatRoomController } from '../controller/ChatRoomController.js';
+import { MessageController } from '../controller/MessageController.js';
 
 const router = Router();
 
@@ -30,6 +31,9 @@ router.post("/chatroom", authMiddleware, ChatRoomController.createChatRoom);
 router.get("/chatroom", authMiddleware, ChatRoomController.getUserChatRooms);
 
 router.get("/chatroom/:id", authMiddleware, ChatRoomController.getChatRoomById);
+
+// Message routes
+router.post("/chatroom/:id/message", authMiddleware, MessageController.sendMessage)
 
 router.get('/health', (req, res) => {
   res.json({ health: 'OK' });
