@@ -1,5 +1,5 @@
 import prisma from "../DB/db.config.js";
-import { registerSchema } from "../validations/authValidation.js"
+import { registerSchema, changePasswordSchema } from "../validations/authValidation.js"
 import {type Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { ZodError } from "zod";
@@ -106,14 +106,12 @@ export class AuthController{
       if (!user) return res.status(404).json({ error: 'User not found' });
 
       const token = signToken(user.id, user.mobile);
-      res.json({ token });
-
-
       return res.json({
         status: 200,
         message: "OTP verified successfully",
         data: {
-          mobile: mobile
+          mobile: mobile,
+          token: token
         }
       });
     } catch (error) {
@@ -149,26 +147,57 @@ export class AuthController{
   }
   static async changePassword(req: Request, res: Response) {
     const { newPassword } = req.body;
+    
+    if (!newPassword) return res.status(400).json({ error: 'Password is required' });
 
     const userId = req.user?.userId;
 
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    if (!newPassword) return res.status(400).json({ error: 'Password is required' });
+    try {
+      const payload = await changePasswordSchema.parseAsync({ newPassword });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
+      const user = await prisma.user.findUnique({
+        where: { id: userId }
+      });
 
-    await prisma.user.update({
-      where: { 
-        id: userId
-      },
-      data: { password: hashedPassword }
-    });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
 
-    return res.json({
-      status: 200,
-      message: "Password changed successfully"
-    });
+      if (user.password) {
+        const isSamePassword = await bcrypt.compare(payload.newPassword, user.password);
+        if (isSamePassword) {
+          return res.status(400).json({ error: "New password cannot be the same as the old password" });
+        }
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(payload.newPassword, salt);
+
+      await prisma.user.update({
+        where: {
+          id: userId
+        },
+        data: { password: hashedPassword }
+      });
+
+      return res.json({
+        status: 200,
+        message: "Password changed successfully"
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const reporter = new ZodCustomErrorReporter(error);
+        return res.status(422).json({
+          status: 422,
+          errors: reporter.createError()
+        });
+      }
+      return res.status(500).json({
+        status: 500,
+        message: "Something went wrong... Please try again"
+      });
+    }
   }
 }
