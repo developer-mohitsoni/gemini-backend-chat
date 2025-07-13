@@ -38,6 +38,8 @@ router.post("/chatroom/:id/message", authMiddleware, MessageController.sendMessa
 
 router.post("/subscribe/pro", authMiddleware, SubscriptionController.startSubscription)
 
+router.get("/subscription/status", authMiddleware, SubscriptionController.getSubscriptionStatus);
+
 router.get('/health', (req, res) => {
   res.json({ health: 'OK' });
 });
