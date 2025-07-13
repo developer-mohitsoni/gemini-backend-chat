@@ -1,6 +1,8 @@
 import { Queue, Worker } from "bullmq";
 import { redis } from "../services/redisService.js";
 import { defaultQueueConfig } from "../config/queue.js";
+import { getGeminiReply } from "../services/geminiService.js";
+import prisma from "../DB/db.config.js";
 
 export const messageQueueName = "gemini-message-queue";
 export const messageQueue = new Queue(messageQueueName, {
@@ -9,7 +11,18 @@ export const messageQueue = new Queue(messageQueueName, {
 })
 
 export const handler = new Worker(messageQueueName, async (job)=>{
-  console.log(`Processing job ${job.id} in ${messageQueueName}`);
+  const {messageId, content} = job.data;
+
+  const aiReply = await getGeminiReply(content);
+
+  console.log(`AI Reply for message ${messageId}: ${aiReply}`);
+
+  await prisma.message.update({
+    where: { id: messageId },
+    data: { response: aiReply }
+  });
+
+  console.log(`✅ Processed message ${messageId}`);
 }, {
   connection: redis,
   
