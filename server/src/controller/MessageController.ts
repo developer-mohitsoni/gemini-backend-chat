@@ -1,5 +1,6 @@
 import {type Request, Response} from 'express';
 import prisma from '../DB/db.config.js';
+import { messageQueue, messageQueueName } from '../jobs/SendEmailJobs.js';
 
 export class MessageController {
   static async sendMessage(req:Request, res:Response): Promise<Response> {
@@ -30,6 +31,13 @@ export class MessageController {
         chatroomId: chatRoomId,
       },
     });
+
+    await messageQueue.add(messageQueueName, {
+      messageId: message.id,
+      userId,
+      chatRoomId,
+      content
+    })
 
     return res.status(202).json({
     message: 'Message queued successfully',
