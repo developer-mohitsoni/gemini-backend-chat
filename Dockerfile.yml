@@ -1,0 +1,37 @@
+FROM node:20-alpine AS base
+
+FROM base AS builder
+
+WORKDIR /home/build
+
+COPY package*.json .
+COPY ./prisma/schema.prisma ./prisma/
+COPY tsconfig.json .
+
+RUN npm install
+
+RUN npx prisma generate
+COPY . .
+
+RUN npm run build
+
+# Stage 2: Runner
+
+FROM base AS runner
+
+WORKDIR /home/app
+
+ENV NODE_ENV=production
+
+COPY --from=builder /home/build/dist ./dist
+COPY --from=builder /home/build/node_modules ./node_modules
+COPY --from=builder /home/build/prisma ./prisma
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodejs
+
+USER nodejs
+
+EXPOSE 3000
+
+CMD ["npx", "prisma", "migrate", "deploy", "&&", "node", "dist/index.js"]
