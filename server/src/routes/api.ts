@@ -4,6 +4,7 @@ import { authMiddleware } from '../middleware/AuthMiddleware.js';
 import { UserController } from '../controller/UserController.js';
 import { ChatRoomController } from '../controller/ChatRoomController.js';
 import { MessageController } from '../controller/MessageController.js';
+import { SubscriptionController } from '../controller/subscriptionController.js';
 
 const router = Router();
 
@@ -34,6 +35,8 @@ router.get("/chatroom/:id", authMiddleware, ChatRoomController.getChatRoomById);
 
 // Message routes
 router.post("/chatroom/:id/message", authMiddleware, MessageController.sendMessage)
+
+router.post("/subscribe/pro", authMiddleware, SubscriptionController.startSubscription)
 
 router.get('/health', (req, res) => {
   res.json({ health: 'OK' });
