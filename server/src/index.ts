@@ -13,6 +13,9 @@ app.use(cors({
   credentials: true,
 }));
 
+import webhookRoute from './routes/webhookRoute.js';
+app.use('/', webhookRoute);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -23,6 +26,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 import ApiRoutes from "./routes/api.js";
+
 
 app.use("/api", ApiRoutes);
 
