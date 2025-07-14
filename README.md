@@ -2,6 +2,10 @@
 
 This project is a backend application for a chat application, featuring user authentication, chat room management, message handling, and integration with the Gemini API for AI responses. It also includes a queue system for background jobs and Stripe integration for subscription management.
 
+## POSTMAN API Video:
+
+[Watch on Google Drive](https://drive.google.com/file/d/1hpbN7wgBK32louOsm2uTeeOrBCO8u-mO/view?usp=sharing)
+
 ## Table of Contents
 
 - [Gemini Backend Clone Chat App](#gemini-backend-clone-chat-app)
